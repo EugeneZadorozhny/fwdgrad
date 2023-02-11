@@ -6,7 +6,7 @@ import functorch as fc
 import hydra
 import torch
 import torchvision
-from functorch import make_functional
+from functorch import make_functional_with_buffers
 from omegaconf import DictConfig
 
 from fwdgrad.loss import functional_xent
@@ -19,7 +19,7 @@ def train_model(cfg: DictConfig):
     total_epochs = cfg.optimization.epochs
     init_lr = cfg.optimization.learning_rate
     k = cfg.optimization.k
-    
+
     # Dataset creation
     if "NeuralNet" in cfg.model._target_:
         mnist = torchvision.datasets.MNIST(
@@ -52,7 +52,7 @@ def train_model(cfg: DictConfig):
         model.train()
 
         # Get the functional version of the model with functorch
-        fmodel, params = make_functional(model)
+        fmodel, params, buffers = make_functional_with_buffers(model)
 
         t_total = 0
         for epoch in range(total_epochs):
@@ -65,6 +65,7 @@ def train_model(cfg: DictConfig):
                 f = partial(
                     functional_xent,
                     model=fmodel,
+                    buffers=buffers,
                     x=images.to(device),
                     t=labels.to(device),
                 )
