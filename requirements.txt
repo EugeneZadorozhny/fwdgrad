@@ -3,3 +3,4 @@ torchvision>=0.15.0
 omegaconf~=2.1.2
 hydra-core==1.1.2
 tensorboard
+setuptools>=70.0.0 # not directly required, pinned by Snyk to avoid a vulnerability
